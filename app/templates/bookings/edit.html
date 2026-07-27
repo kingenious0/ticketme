@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Booking - TicketMe{% endblock %}
+{% block page_title %}Edit Booking: {{ booking.booking_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title fw-bold mb-0 text-primary">
+          <i class="bi bi-pencil-square me-2"></i>Edit Booking Details
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-bold">Booking Number</label>
+            <input type="text" class="form-control" value="{{ booking.booking_number }}" disabled>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-bold">Event</label>
+            <input type="text" class="form-control" value="{{ booking.event.name }}" disabled>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-bold">Customer</label>
+            <select name="customer_id" class="form-select" required>
+              {% for customer in customers %}
+                <option value="{{ customer.id }}" {% if customer.id == booking.customer_id %}selected{% endif %}>
+                  {{ customer.name }} ({{ customer.phone_number }})
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-bold">Booking Status</label>
+            <select name="status" class="form-select" required>
+              <option value="Pending" {% if booking.status == 'Pending' %}selected{% endif %}>Pending</option>
+              <option value="Confirmed" {% if booking.status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+              <option value="Cancelled" {% if booking.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <a href="{{ url_for('bookings.detail', booking_id=booking.id) }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary fw-bold">
+              <i class="bi bi-check-circle me-1"></i> Update Booking
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

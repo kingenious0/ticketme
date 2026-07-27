@@ -2,6 +2,38 @@
 Seed script for TicketMe Event Ticketing System - Populates Manager and Ticket Officer accounts, events, and settings.
 """
 
+import os
+import pymysql
+from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def auto_create_database():
+    db_uri = os.getenv('DATABASE_URL') or os.getenv('SQLALCHEMY_DATABASE_URI', '')
+    if not db_uri or 'mysql' not in db_uri:
+        return
+    try:
+        clean_url = db_uri.replace('mysql+pymysql://', 'http://').replace('mysql://', 'http://')
+        parsed = urlparse(clean_url)
+        db_name = parsed.path.lstrip('/')
+        host = parsed.hostname or 'localhost'
+        port = parsed.port or 3306
+        user = parsed.username or 'root'
+        password = parsed.password or ''
+        
+        if db_name:
+            conn = pymysql.connect(host=host, port=port, user=user, password=password)
+            cursor = conn.cursor()
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
+            conn.commit()
+            conn.close()
+            print(f"[+] Ensured MySQL database `{db_name}` exists on {host}:{port}.")
+    except Exception as e:
+        print(f"[!] Database auto-creation notice: {e}")
+
+auto_create_database()
+
 from app import create_app
 from app.extensions import db
 from app.models.user import User
@@ -12,6 +44,7 @@ from app.models.setting import Setting
 from datetime import date, time, datetime
 
 app = create_app()
+
 
 def seed_database():
     with app.app_context():

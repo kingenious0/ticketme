@@ -130,6 +130,28 @@ def get_ticket_types_for_event(event_id):
     data = [{'id': t.id, 'name': t.name, 'price': float(t.price), 'available': t.available_quantity} for t in tts]
     return jsonify(data)
 
+@bookings_bp.route('/<int:booking_id>/edit', methods=['GET', 'POST'])
+@login_required
+@role_required('Administrator', 'Manager', 'Ticket Officer')
+def edit(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+    customers = Customer.query.order_by(Customer.name.asc()).all()
+
+    if request.method == 'POST':
+        customer_id = request.form.get('customer_id', type=int)
+        status = request.form.get('status', booking.status)
+
+        if customer_id:
+            booking.customer_id = customer_id
+        if status:
+            booking.status = status
+
+        db.session.commit()
+        flash(f'Booking {booking.booking_number} updated successfully.', 'success')
+        return redirect(url_for('bookings.detail', booking_id=booking.id))
+
+    return render_template('bookings/edit.html', booking=booking, customers=customers)
+
 @bookings_bp.route('/<int:booking_id>/delete', methods=['POST'])
 @login_required
 @role_required('Administrator', 'Manager')
@@ -143,4 +165,5 @@ def delete(booking_id):
     db.session.commit()
     flash(f'Booking {b_num} deleted successfully.', 'success')
     return redirect(url_for('bookings.index'))
+
 
