@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Create Booking - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-bookmark-plus me-2 text-primary"></i> Create Event Ticket Booking</h5>
+            <form method="POST" action="{{ url_for('bookings.create') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">1. SELECT EVENT *</label>
+                    <select name="event_id" id="eventSelect" class="form-select" required>
+                        <option value="">-- Choose Event --</option>
+                        {% for ev in events %}
+                            <option value="{{ ev.id }}">{{ ev.name }} ({{ ev.event_date.strftime('%b %d, %Y') }} at {{ ev.venue }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">2. SELECT CUSTOMER *</label>
+                    <div class="input-group">
+                        <select name="customer_id" class="form-select" required>
+                            <option value="">-- Choose Customer --</option>
+                            {% for c in customers %}
+                                <option value="{{ c.id }}">{{ c.name }} ({{ c.phone_number }})</option>
+                            {% endfor %}
+                        </select>
+                        <a href="{{ url_for('customers.create') }}" class="btn btn-outline-secondary" title="Add Customer"><i class="bi bi-person-plus"></i></a>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-8">
+                        <label class="form-label fw-semibold text-muted small">3. SELECT TICKET TYPE *</label>
+                        <select name="ticket_type_id" id="ticketTypeSelect" class="form-select" required disabled>
+                            <option value="">-- Select Event First --</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">QUANTITY *</label>
+                        <input type="number" min="1" max="50" name="quantity" id="quantityInput" class="form-control" value="1" required>
+                    </div>
+                </div>
+
+                <!-- Live Total Display -->
+                <div class="p-3 bg-light rounded-3 mb-4 text-end">
+                    <span class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.75rem;">Estimated Total Amount</span>
+                    <h3 class="fw-bold text-primary mb-0" id="totalDisplay">GHS 0.00</h3>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('bookings.index') }}" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">Create Booking (Pending)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const eventSelect = document.getElementById('eventSelect');
+    const ticketTypeSelect = document.getElementById('ticketTypeSelect');
+    const quantityInput = document.getElementById('quantityInput');
+    const totalDisplay = document.getElementById('totalDisplay');
+
+    let currentPrice = 0;
+
+    function calculateTotal() {
+        const qty = parseInt(quantityInput.value) || 1;
+        const total = currentPrice * qty;
+        totalDisplay.textContent = `GH₵ ${total.toFixed(2)}`;
+    }
+
+    eventSelect.addEventListener('change', function() {
+        const eventId = this.value;
+        ticketTypeSelect.innerHTML = '<option value="">Loading ticket types...</option>';
+        ticketTypeSelect.disabled = true;
+        currentPrice = 0;
+        calculateTotal();
+
+        if (!eventId) return;
+
+        fetch(`/bookings/api/ticket-types/${eventId}`)
+            .then(res => res.json())
+            .then(data => {
+                ticketTypeSelect.innerHTML = '<option value="">-- Choose Ticket Type --</option>';
+                if (data.length === 0) {
+                    ticketTypeSelect.innerHTML = '<option value="">No ticket types defined for this event</option>';
+                    return;
+                }
+                data.forEach(tt => {
+                    const opt = document.createElement('option');
+                    opt.value = tt.id;
+                    opt.textContent = `${tt.name} - GH₵ ${tt.price.toFixed(2)} (${tt.available} left)`;
+                    opt.dataset.price = tt.price;
+                    opt.dataset.available = tt.available;
+                    ticketTypeSelect.appendChild(opt);
+                });
+                ticketTypeSelect.disabled = false;
+            });
+    });
+
+    ticketTypeSelect.addEventListener('change', function() {
+        const selectedOpt = this.options[this.selectedIndex];
+        if (selectedOpt && selectedOpt.dataset.price) {
+            currentPrice = parseFloat(selectedOpt.dataset.price);
+            quantityInput.max = selectedOpt.dataset.available || 50;
+        } else {
+            currentPrice = 0;
+        }
+        calculateTotal();
+    });
+
+    quantityInput.addEventListener('input', calculateTotal);
+});
+</script>
+{% endblock %}

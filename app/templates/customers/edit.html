@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Edit Customer - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i> Edit Customer</h5>
+            <form method="POST" action="{{ url_for('customers.edit', customer_id=customer.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">CUSTOMER NAME *</label>
+                    <input type="text" name="name" class="form-control" value="{{ customer.name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">PHONE NUMBER *</label>
+                    <input type="text" name="phone_number" class="form-control" value="{{ customer.phone_number }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">EMAIL ADDRESS</label>
+                    <input type="email" name="email" class="form-control" value="{{ customer.email or '' }}">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">NOTES</label>
+                    <textarea name="notes" class="form-control" rows="3">{{ customer.notes or '' }}</textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('customers.detail', customer_id=customer.id) }}" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">Update Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

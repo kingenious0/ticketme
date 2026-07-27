@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Edit Event - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i> Edit Event</h5>
+            <form method="POST" action="{{ url_for('events.edit', event_id=event.id) }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">EVENT NAME *</label>
+                    <input type="text" name="name" class="form-control" value="{{ event.name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">VENUE LOCATION *</label>
+                    <input type="text" name="venue" class="form-control" value="{{ event.venue }}" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">EVENT DATE *</label>
+                        <input type="date" name="event_date" class="form-control" value="{{ event.event_date.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">START TIME *</label>
+                        <input type="time" name="start_time" class="form-control" value="{{ event.start_time.strftime('%H:%M') }}" required>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">END TIME</label>
+                        <input type="time" name="end_time" class="form-control" value="{{ event.end_time.strftime('%H:%M') if event.end_time else '' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">STATUS *</label>
+                    <select name="status" class="form-select" required>
+                        <option value="Upcoming" {% if event.status == 'Upcoming' %}selected{% endif %}>Upcoming</option>
+                        <option value="Ongoing" {% if event.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="Completed" {% if event.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled" {% if event.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+
+                {# Banner Image upload hidden per requirements - uncomment to restore
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">BANNER IMAGE</label>
+                    {% if event.banner_image %}
+                        <div class="mb-2">
+                            <img src="{{ url_for('static', filename=event.banner_image) }}" alt="Banner" class="rounded border" style="max-height: 80px;">
+                        </div>
+                    {% endif %}
+                    <input type="file" name="banner_image" class="form-control" accept="image/*">
+                </div>
+                #}
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">DESCRIPTION</label>
+                    <textarea name="description" class="form-control" rows="4">{{ event.description or '' }}</textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('events.detail', event_id=event.id) }}" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">Update Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

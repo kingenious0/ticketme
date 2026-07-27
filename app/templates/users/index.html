@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}System Users - TicketMe{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">System Users</h4>
+        <p class="text-muted small mb-0">Manage staff accounts, roles, and system permissions.</p>
+    </div>
+    <a href="{{ url_for('users.create') }}" class="btn btn-primary fw-semibold"><i class="bi bi-person-plus me-1"></i> Create New User</a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td class="fw-semibold">{{ u.full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.phone_number or '—' }}</td>
+                    <td><span class="badge {% if u.role == 'Manager' %}bg-primary{% else %}bg-info text-dark{% endif %}">{{ u.role }}</span></td>
+                    <td>
+                        {% if u.status == 'Active' %}
+                            <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('users.edit', user_id=u.id) }}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i> Edit</a>
+                        {% if u.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('users.toggle_status', user_id=u.id) }}" class="d-inline me-1">
+                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                {% if u.status == 'Active' %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('users.delete', user_id=u.id) }}" onsubmit="return confirm('Are you sure you want to delete user &quot;{{ u.email }}&quot;?');" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

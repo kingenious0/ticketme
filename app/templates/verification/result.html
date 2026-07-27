@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Verification Result - TicketMe{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        {% if ticket %}
+            {% if ticket.status == 'Unused' %}
+                <!-- VALID TICKET BANNER -->
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center mb-4 border-start border-success border-5">
+                    <div class="bg-success text-white p-4">
+                        <i class="bi bi-check-circle-fill display-1 d-block mb-2"></i>
+                        <h2 class="fw-bold mb-0">VALID TICKET</h2>
+                        <p class="mb-0">Entry Granted for Gate Verification</p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold text-primary mb-1">{{ ticket.ticket_number }}</h4>
+                        <span class="badge bg-primary fs-6 mb-3">{{ ticket.ticket_type.name }} TIER</span>
+
+                        <div class="text-start p-3 bg-light rounded-3 mb-4" style="font-size: 0.95rem;">
+                            <div class="row g-2">
+                                <div class="col-5 text-muted">ATTENDEE NAME:</div>
+                                <div class="col-7 fw-bold text-dark text-end">{{ ticket.customer.name }}</div>
+
+                                <div class="col-5 text-muted">PHONE:</div>
+                                <div class="col-7 fw-bold text-end">{{ ticket.customer.phone_number }}</div>
+
+                                <div class="col-5 text-muted">EVENT:</div>
+                                <div class="col-7 fw-bold text-end">{{ ticket.event.name }}</div>
+
+                                <div class="col-5 text-muted">VENUE:</div>
+                                <div class="col-7 fw-bold text-end">{{ ticket.event.venue }}</div>
+
+                                <div class="col-5 text-muted">BOOKING REF:</div>
+                                <div class="col-7 fw-bold text-end">{{ ticket.booking.booking_number }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button: Mark as Used -->
+                        <form method="POST" action="{{ url_for('verification.mark_used', ticket_id=ticket.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-success btn-lg w-100 py-3 fw-bold">
+                                <i class="bi bi-check2-square me-2"></i> MARK TICKET AS USED & CONFIRM ENTRY
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            {% elif ticket.status == 'Used' %}
+                <!-- ALREADY USED BANNER -->
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center mb-4 border-start border-danger border-5">
+                    <div class="bg-danger text-white p-4">
+                        <i class="bi bi-x-circle-fill display-1 d-block mb-2"></i>
+                        <h2 class="fw-bold mb-0">INVALID - ALREADY USED!</h2>
+                        <p class="mb-0">This ticket has already been scanned for entry.</p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold text-danger mb-1">{{ ticket.ticket_number }}</h4>
+                        <span class="badge bg-secondary fs-6 mb-3">STATUS: USED</span>
+
+                        <div class="alert alert-danger text-start small mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>DOUBLE ENTRY PREVENTED:</strong> This ticket was previously verified on 
+                            <strong>{{ ticket.verified_at.strftime('%Y-%m-%d at %I:%M:%S %p') if ticket.verified_at else 'Prior Session' }}</strong> 
+                            by <strong>{{ ticket.verifier.full_name if ticket.verifier else 'Security Officer' }}</strong>.
+                        </div>
+
+                        <div class="text-start p-3 bg-light rounded-3 mb-4" style="font-size: 0.9rem;">
+                            <div class="row g-2">
+                                <div class="col-5 text-muted">ATTENDEE:</div>
+                                <div class="col-7 fw-bold text-end">{{ ticket.customer.name }}</div>
+
+                                <div class="col-5 text-muted">EVENT:</div>
+                                <div class="col-7 fw-bold text-end">{{ ticket.event.name }}</div>
+                            </div>
+                        </div>
+
+                        <a href="{{ url_for('verification.index') }}" class="btn btn-outline-danger w-100 py-2 fw-semibold">Scan Another Ticket</a>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- CANCELLED TICKET -->
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center mb-4 border-start border-danger border-5">
+                    <div class="bg-dark text-white p-4">
+                        <i class="bi bi-slash-circle display-1 d-block mb-2 text-danger"></i>
+                        <h2 class="fw-bold mb-0">CANCELLED TICKET</h2>
+                        <p class="mb-0">This ticket was cancelled and is invalid.</p>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <!-- TICKET NOT FOUND BANNER -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center mb-4 border-start border-danger border-5">
+                <div class="bg-danger text-white p-4">
+                    <i class="bi bi-question-circle-fill display-1 d-block mb-2"></i>
+                    <h2 class="fw-bold mb-0">TICKET NOT FOUND</h2>
+                    <p class="mb-0">No record exists for ticket number "{{ queried_number }}".</p>
+                </div>
+                <div class="card-body p-4">
+                    <a href="{{ url_for('verification.index') }}" class="btn btn-primary w-100 py-2 fw-semibold">Try Again</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="text-center">
+            <a href="{{ url_for('verification.index') }}" class="btn btn-link text-decoration-none"><i class="bi bi-arrow-left"></i> Return to Gate Scanner</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

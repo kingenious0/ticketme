@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Reports & Analytics - TicketMe{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Reports & Financial Analytics</h4>
+        <p class="text-muted small mb-0">Track total revenue, event ticket performance, and payment channels.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('reports.export_csv', report_type='payments') }}" class="btn btn-outline-primary fw-semibold"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Payments CSV</a>
+        <a href="{{ url_for('reports.export_csv', report_type='tickets') }}" class="btn btn-outline-success fw-semibold"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Tickets CSV</a>
+    </div>
+</div>
+
+<!-- Overview Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card p-3 bg-white">
+            <span class="text-muted small text-uppercase fw-semibold">Total Revenue Collected</span>
+            <h3 class="fw-bold text-success mb-0">GH₵ {{ "%.2f"|format(total_revenue) }}</h3>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card p-3 bg-white">
+            <span class="text-muted small text-uppercase fw-semibold">Total Bookings</span>
+            <h3 class="fw-bold text-primary mb-0">{{ total_bookings }}</h3>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card p-3 bg-white">
+            <span class="text-muted small text-uppercase fw-semibold">Total Tickets Issued</span>
+            <h3 class="fw-bold text-info mb-0">{{ total_tickets }}</h3>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card p-3 bg-white">
+            <span class="text-muted small text-uppercase fw-semibold">Registered Customers</span>
+            <h3 class="fw-bold text-warning mb-0">{{ total_customers }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Event Sales Breakdown -->
+    <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2 text-primary"></i> Revenue Breakdown by Event</h5>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Confirmed Bookings</th>
+                            <th>Total Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if event_sales %}
+                            {% for es in event_sales %}
+                            <tr>
+                                <td class="fw-semibold">{{ es.name }}</td>
+                                <td>{{ es.booking_count }}</td>
+                                <td class="fw-bold text-success">GH₵ {{ "%.2f"|format(es.total_revenue) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">No confirmed event revenue recorded.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Method Distribution -->
+    <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-wallet2 me-2 text-success"></i> Payment Channels Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Method</th>
+                            <th>Txn Count</th>
+                            <th>Total Collected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if method_sales %}
+                            {% for ms in method_sales %}
+                            <tr>
+                                <td><span class="badge bg-secondary">{{ ms.payment_method }}</span></td>
+                                <td>{{ ms.transaction_count }}</td>
+                                <td class="fw-bold text-success">GH₵ {{ "%.2f"|format(ms.total_amount) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">No payment records found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

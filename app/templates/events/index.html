@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Events Management - TicketMe{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Events Directory</h4>
+        <p class="text-muted small mb-0">Create and manage upcoming concerts, conferences, and functions.</p>
+    </div>
+    {% if current_user.is_manager %}
+    <a href="{{ url_for('events.create') }}" class="btn btn-primary fw-semibold"><i class="bi bi-calendar-plus me-1"></i> Create New Event</a>
+    {% endif %}
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="GET" action="{{ url_for('events.index') }}" class="row g-2 align-items-center">
+        <div class="col-12 col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="search" class="form-control" placeholder="Search by event name or venue..." value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="Upcoming" {% if selected_status == 'Upcoming' %}selected{% endif %}>Upcoming</option>
+                <option value="Ongoing" {% if selected_status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                <option value="Completed" {% if selected_status == 'Completed' %}selected{% endif %}>Completed</option>
+                <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            {% if search or selected_status %}
+                <a href="{{ url_for('events.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i></a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Events Grid -->
+<div class="row g-4">
+    {% if pagination.items %}
+        {% for ev in pagination.items %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                {% if ev.banner_image %}
+                    <img src="{{ url_for('static', filename=ev.banner_image) }}" class="card-img-top" alt="{{ ev.name }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="height: 180px;">
+                        <i class="bi bi-calendar-event display-4"></i>
+                    </div>
+                {% endif %}
+
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge {% if ev.status == 'Upcoming' %}bg-primary{% elif ev.status == 'Ongoing' %}bg-success{% elif ev.status == 'Completed' %}bg-secondary{% else %}bg-danger{% endif %} rounded-pill">
+                            {{ ev.status }}
+                        </span>
+                        <small class="text-muted fw-semibold"><i class="bi bi-ticket"></i> {{ ev.ticket_types|length }} Ticket Types</small>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">
+                        <a href="{{ url_for('events.detail', event_id=ev.id) }}" class="text-dark text-decoration-none">{{ ev.name }}</a>
+                    </h5>
+
+                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-1 text-danger"></i> {{ ev.venue }}</p>
+                    <p class="text-primary fw-medium small mb-3"><i class="bi bi-clock me-1"></i> {{ ev.event_date.strftime('%B %d, %Y') }} at {{ ev.start_time.strftime('%I:%M %p') }}</p>
+
+                    <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{{ url_for('events.detail', event_id=ev.id) }}" class="btn btn-sm btn-outline-primary fw-semibold">View Details</a>
+                        {% if current_user.is_manager %}
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('events.edit', event_id=ev.id) }}" class="btn btn-sm btn-light text-muted" title="Edit Event"><i class="bi bi-pencil"></i></a>
+                            <form method="POST" action="{{ url_for('events.delete', event_id=ev.id) }}" onsubmit="return confirm('Are you sure you want to delete this event? All associated data will be removed.');" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Event"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-calendar-x display-3 text-muted"></i>
+            <h5 class="mt-3 text-muted">No events found</h5>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

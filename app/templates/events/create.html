@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Create Event - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-calendar-plus me-2 text-primary"></i> Create New Event</h5>
+            <form method="POST" action="{{ url_for('events.create') }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">EVENT NAME *</label>
+                    <input type="text" name="name" class="form-control" placeholder="Accra Concert 2026" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">VENUE LOCATION *</label>
+                    <input type="text" name="venue" class="form-control" placeholder="National Theatre, Accra" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">EVENT DATE *</label>
+                        <input type="date" name="event_date" class="form-control" required>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">START TIME *</label>
+                        <input type="time" name="start_time" class="form-control" required>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label fw-semibold text-muted small">END TIME</label>
+                        <input type="time" name="end_time" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">STATUS *</label>
+                    <select name="status" class="form-select" required>
+                        <option value="Upcoming">Upcoming</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+                {# Banner Image upload hidden per requirements - uncomment to restore
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">BANNER IMAGE</label>
+                    <input type="file" name="banner_image" class="form-control" accept="image/*">
+                </div>
+                #}
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">DESCRIPTION</label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Detailed event description..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('events.index') }}" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

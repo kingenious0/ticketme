@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Ticket {{ ticket.ticket_number }} - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <div class="mb-3">
+                <span class="badge {% if ticket.status == 'Unused' %}bg-success{% elif ticket.status == 'Used' %}bg-secondary{% else %}bg-danger{% endif %} px-3 py-2 fs-6">
+                    TICKET STATUS: {{ ticket.status }}
+                </span>
+            </div>
+
+            <h3 class="fw-bold text-primary mb-1">{{ ticket.ticket_number }}</h3>
+            <p class="text-muted small mb-4">Booking Ref: {{ ticket.booking.booking_number }}</p>
+
+            {% if ticket.qr_code_path %}
+                <div class="p-3 bg-light rounded-3 d-inline-block mx-auto mb-4 border">
+                    <img src="{{ url_for('static', filename=ticket.qr_code_path) }}" style="width: 180px; height: 180px;" alt="Ticket QR">
+                </div>
+            {% endif %}
+
+            <div class="text-start p-3 bg-light rounded-3 mb-4" style="font-size: 0.9rem;">
+                <div class="row g-2">
+                    <div class="col-6 text-muted">EVENT:</div>
+                    <div class="col-6 fw-semibold text-end">{{ ticket.event.name }}</div>
+
+                    <div class="col-6 text-muted">VENUE:</div>
+                    <div class="col-6 fw-semibold text-end">{{ ticket.event.venue }}</div>
+
+                    <div class="col-6 text-muted">DATE & TIME:</div>
+                    <div class="col-6 fw-semibold text-end">{{ ticket.event.event_date.strftime('%b %d, %Y') }}</div>
+
+                    <div class="col-6 text-muted">ATTENDEE:</div>
+                    <div class="col-6 fw-semibold text-end">{{ ticket.customer.name }}</div>
+
+                    <div class="col-6 text-muted">TICKET TYPE:</div>
+                    <div class="col-6 fw-semibold text-end text-primary">{{ ticket.ticket_type.name }}</div>
+
+                    {% if ticket.status == 'Used' %}
+                        <div class="col-6 text-muted border-top pt-2">VERIFIED AT:</div>
+                        <div class="col-6 fw-bold text-end text-success border-top pt-2">{{ ticket.verified_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.verified_at else '—' }}</div>
+
+                        <div class="col-6 text-muted">VERIFIED BY:</div>
+                        <div class="col-6 fw-semibold text-end">{{ ticket.verifier.full_name if ticket.verifier else '—' }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('tickets.print_ticket', ticket_id=ticket.id) }}" target="_blank" class="btn btn-outline-secondary"><i class="bi bi-printer me-1"></i> Print Ticket</a>
+                <a href="{{ url_for('tickets.pdf', ticket_id=ticket.id) }}" class="btn btn-primary"><i class="bi bi-file-pdf me-1"></i> Download PDF</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

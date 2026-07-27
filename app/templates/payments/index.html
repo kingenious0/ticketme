@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Payments Register - TicketMe{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Payments Register</h4>
+        <p class="text-muted small mb-0">Record of manual payments received (Cash, Mobile Money, Bank Transfer, Card).</p>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="GET" action="{{ url_for('payments.index') }}" class="row g-2 align-items-center">
+        <div class="col-12 col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="search" class="form-control" placeholder="Search payment ref, transaction ref, booking #..." value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <select name="method" class="form-select" onchange="this.form.submit()">
+                <option value="">All Payment Methods</option>
+                <option value="Cash" {% if selected_method == 'Cash' %}selected{% endif %}>Cash</option>
+                <option value="MTN Mobile Money" {% if selected_method == 'MTN Mobile Money' %}selected{% endif %}>MTN Mobile Money</option>
+                <option value="Telecel Cash" {% if selected_method == 'Telecel Cash' %}selected{% endif %}>Telecel Cash</option>
+                <option value="Bank Transfer" {% if selected_method == 'Bank Transfer' %}selected{% endif %}>Bank Transfer</option>
+                <option value="Card" {% if selected_method == 'Card' %}selected{% endif %}>Card</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            {% if search or selected_method %}
+                <a href="{{ url_for('payments.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i></a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+            <thead class="table-light">
+                <tr>
+                    <th>Payment Ref</th>
+                    <th>Booking Ref</th>
+                    <th>Customer</th>
+                    <th>Method</th>
+                    <th>Txn Reference</th>
+                    <th>Amount</th>
+                    <th>Received By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pagination.items %}
+                    {% for p in pagination.items %}
+                    <tr>
+                        <td class="fw-semibold">{{ p.payment_number }}</td>
+                        <td>
+                            <a href="{{ url_for('bookings.detail', booking_id=p.booking.id) }}" class="text-decoration-none">{{ p.booking.booking_number }}</a>
+                        </td>
+                        <td>{{ p.booking.customer.name }}</td>
+                        <td><span class="badge bg-secondary">{{ p.payment_method }}</span></td>
+                        <td>{{ p.transaction_reference or '—' }}</td>
+                        <td class="fw-bold text-success">GH₵ {{ "%.2f"|format(p.amount) }}</td>
+                        <td>{{ p.receiver.full_name }}</td>
+                        <td>{{ p.payment_date.strftime('%b %d, %Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">No payments recorded.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

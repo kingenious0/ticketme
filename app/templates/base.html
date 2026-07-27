@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ system_setting.business_name }}{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #ffffff;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        /* Responsive Layout */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        #sidebar {
+            min-width: 260px;
+            max-width: 260px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        #sidebar.active {
+            margin-left: -260px;
+        }
+
+        #content {
+            width: 100%;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #090d16;
+        }
+
+        .sidebar-nav {
+            padding: 15px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .sidebar-nav li a {
+            padding: 12px 25px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: 0.2s;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            color: var(--sidebar-active);
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        .kpi-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+
+        .icon-shape {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        /* Mobile View Responsive Adjustment */
+        @media (max-width: 991.98px) {
+            #sidebar {
+                margin-left: -260px;
+                position: fixed;
+                height: 100vh;
+            }
+            #sidebar.active {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="wrapper">
+    {% if current_user.is_authenticated %}
+        {% include 'sidebar.html' %}
+    {% endif %}
+
+    <div id="content" class="d-flex flex-column">
+        {% if current_user.is_authenticated %}
+            {% include 'navbar.html' %}
+        {% endif %}
+
+        <main class="container-fluid px-4 py-4 flex-grow-1">
+            <!-- Flash Alert Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        {% include 'footer.html' %}
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebarCollapse = document.getElementById('sidebarCollapse');
+        if (sidebarCollapse) {
+            sidebarCollapse.addEventListener('click', function () {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+        }
+    });
+
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn ? btn.querySelector('i') : null;
+        if (input) {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            if (icon) {
+                if (icon.classList.contains('bi')) {
+                    icon.classList.toggle('bi-eye', !isPassword);
+                    icon.classList.toggle('bi-eye-slash', isPassword);
+                } else {
+                    icon.classList.toggle('fa-eye', !isPassword);
+                    icon.classList.toggle('fa-eye-slash', isPassword);
+                }
+            }
+        }
+    }
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

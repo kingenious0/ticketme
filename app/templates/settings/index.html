@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}System Settings - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-gear me-2 text-primary"></i> System & Business Settings</h5>
+            <form method="POST" action="{{ url_for('settings.index') }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">ORGANIZATION / BUSINESS NAME *</label>
+                    <input type="text" name="business_name" class="form-control" value="{{ setting.business_name }}" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label fw-semibold text-muted small">BUSINESS PHONE</label>
+                        <input type="text" name="business_phone" class="form-control" value="{{ setting.business_phone or '' }}">
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label fw-semibold text-muted small">BUSINESS EMAIL</label>
+                        <input type="email" name="business_email" class="form-control" value="{{ setting.business_email or '' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">BUSINESS ADDRESS</label>
+                    <input type="text" name="business_address" class="form-control" value="{{ setting.business_address or '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">SYSTEM CURRENCY *</label>
+                    <input type="text" name="currency" class="form-control" value="{{ setting.currency }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">TICKET / RECEIPT FOOTER</label>
+                    <textarea name="receipt_footer" class="form-control" rows="3">{{ setting.receipt_footer or '' }}</textarea>
+                </div>
+
+                {# Logo Image upload hidden per requirements - uncomment to restore
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">ORGANIZATION LOGO</label>
+                    {% if setting.logo_path %}
+                        <div class="mb-2">
+                            <img src="{{ url_for('static', filename=setting.logo_path) }}" alt="Logo" class="img-thumbnail" style="max-height: 80px;">
+                        </div>
+                    {% endif %}
+                    <input type="file" name="logo" class="form-control" accept="image/*">
+                </div>
+                #}
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">Save System Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

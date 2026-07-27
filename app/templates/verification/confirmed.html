@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Entry Confirmed - TicketMe{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center mb-4 border-start border-success border-5">
+            <div class="bg-success text-white p-4">
+                <i class="bi bi-check-circle-fill display-1 d-block mb-2"></i>
+                <h2 class="fw-bold mb-0">ENTRY CONFIRMED!</h2>
+                <p class="mb-0">Ticket Successfully Verified & Marked as USED</p>
+            </div>
+
+            <div class="card-body p-4">
+                <h4 class="fw-bold text-primary mb-1">{{ ticket.ticket_number }}</h4>
+                <span class="badge bg-success fs-6 mb-3">STATUS: USED</span>
+
+                <div class="text-start p-3 bg-light rounded-3 mb-4" style="font-size: 0.95rem;">
+                    <div class="row g-2">
+                        <div class="col-5 text-muted">ATTENDEE NAME:</div>
+                        <div class="col-7 fw-bold text-dark text-end">{{ ticket.customer.name }}</div>
+
+                        <div class="col-5 text-muted">PHONE:</div>
+                        <div class="col-7 fw-bold text-end">{{ ticket.customer.phone_number }}</div>
+
+                        <div class="col-5 text-muted">EVENT:</div>
+                        <div class="col-7 fw-bold text-end">{{ ticket.event.name }}</div>
+
+                        <div class="col-5 text-muted">VENUE:</div>
+                        <div class="col-7 fw-bold text-end">{{ ticket.event.venue }}</div>
+
+                        <div class="col-5 text-muted">VERIFIED BY:</div>
+                        <div class="col-7 fw-bold text-end text-success">{{ ticket.verifier.full_name }}</div>
+
+                        <div class="col-5 text-muted">VERIFIED AT:</div>
+                        <div class="col-7 fw-bold text-end text-success">{{ ticket.verified_at.strftime('%Y-%m-%d %I:%M:%S %p') }}</div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('verification.index') }}" class="btn btn-success btn-lg w-100 py-3 fw-bold">
+                    <i class="bi bi-qr-code-scan me-2"></i> VERIFY NEXT TICKET
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

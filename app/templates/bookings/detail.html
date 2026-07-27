@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Booking {{ booking.booking_number }} - TicketMe{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="badge {% if booking.status == 'Confirmed' %}bg-success{% elif booking.status == 'Pending' %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6 mb-1">
+                        {{ booking.status }}
+                    </span>
+                    <h3 class="fw-bold mb-0">Booking Ref: {{ booking.booking_number }}</h3>
+                </div>
+                {% if booking.status == 'Pending' %}
+                    <a href="{{ url_for('payments.record', booking_id=booking.id) }}" class="btn btn-success fw-semibold"><i class="bi bi-cash me-1"></i> Record Payment</a>
+                {% endif %}
+            </div>
+
+            <hr>
+
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-6">
+                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Event</small>
+                    <h6 class="fw-bold text-dark mb-0">{{ booking.event.name }}</h6>
+                    <small class="text-muted"><i class="bi bi-geo-alt"></i> {{ booking.event.venue }}</small>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Customer</small>
+                    <h6 class="fw-bold text-dark mb-0">{{ booking.customer.name }}</h6>
+                    <small class="text-muted"><i class="bi bi-telephone"></i> {{ booking.customer.phone_number }}</small>
+                </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 mb-4">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">Ticket Type</small>
+                        <span class="fw-bold text-primary">{{ booking.ticket_type.name }}</span>
+                    </div>
+                    <div class="col-4 border-start border-end">
+                        <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">Quantity</small>
+                        <span class="fw-bold text-dark">{{ booking.quantity }}</span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">Total Amount</small>
+                        <span class="fw-bold text-success">GHS {{ "%.2f"|format(booking.total_amount) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if booking.status == 'Confirmed' and booking.tickets %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-ticket-perforated me-2 text-primary"></i> Generated Tickets & QR Codes</h5>
+                    <a href="{{ url_for('tickets.booking_tickets', booking_id=booking.id) }}" class="btn btn-sm btn-outline-primary">View All Tickets</a>
+                </div>
+
+                <div class="row g-3">
+                    {% for t in booking.tickets %}
+                    <div class="col-12 col-sm-6">
+                        <div class="card border rounded-3 p-3 text-center">
+                            <h6 class="fw-bold mb-1">{{ t.ticket_number }}</h6>
+                            <span class="badge {% if t.status == 'Unused' %}bg-success{% elif t.status == 'Used' %}bg-secondary{% else %}bg-danger{% endif %} mb-2">
+                                {{ t.status }}
+                            </span>
+                            {% if t.qr_code_path %}
+                                <img src="{{ url_for('static', filename=t.qr_code_path) }}" class="img-fluid mx-auto mb-2" style="width: 120px;" alt="QR">
+                            {% endif %}
+                            <div>
+                                <a href="{{ url_for('tickets.detail', ticket_id=t.id) }}" class="btn btn-sm btn-light">Details</a>
+                                <a href="{{ url_for('tickets.print_ticket', ticket_id=t.id) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-printer"></i> Print</a>
+                                <a href="{{ url_for('tickets.pdf', ticket_id=t.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-pdf"></i> PDF</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h6 class="fw-bold mb-3">Payment Info</h6>
+            {% if booking.payments %}
+                {% for p in booking.payments %}
+                <div class="p-3 bg-light rounded-3 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-semibold">{{ p.payment_method }}</span>
+                        <span class="fw-bold text-success">GHS {{ "%.2f"|format(p.amount) }}</span>
+                    </div>
+                    <small class="text-muted d-block">Ref: {{ p.transaction_reference or p.payment_number }}</small>
+                    <small class="text-muted d-block">{{ p.payment_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted small">No payment recorded yet for this booking.</p>
+                <a href="{{ url_for('payments.record', booking_id=booking.id) }}" class="btn btn-success w-100 fw-semibold">Record Payment Now</a>
+            {% endif %}
+
+            {% if current_user.is_manager %}
+                <hr>
+                {% if booking.status != 'Cancelled' %}
+                <form method="POST" action="{{ url_for('bookings.cancel', booking_id=booking.id) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');" class="mb-2">
+                    <button type="submit" class="btn btn-outline-warning w-100 btn-sm">Cancel Booking</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('bookings.delete', booking_id=booking.id) }}" onsubmit="return confirm('Are you sure you want to delete this booking?');">
+                    <button type="submit" class="btn btn-outline-danger w-100 btn-sm"><i class="bi bi-trash me-1"></i> Delete Booking</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

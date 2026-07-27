@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}User Profile - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</h5>
+            <form method="POST" action="{{ url_for('auth.profile') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">FULL NAME</label>
+                    <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">EMAIL ADDRESS</label>
+                    <input type="email" class="form-control bg-light" value="{{ current_user.email }}" readonly>
+                    <small class="text-muted">Email cannot be changed.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">PHONE NUMBER</label>
+                    <input type="text" name="phone_number" class="form-control" value="{{ current_user.phone_number or '' }}">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">ROLE</label>
+                    <input type="text" class="form-control bg-light" value="{{ current_user.role }}" readonly>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">Save Profile Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

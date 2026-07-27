@@ -1,0 +1,93 @@
+<nav id="sidebar">
+    <div class="sidebar-header d-flex align-items-center justify-content-between">
+        <a href="{{ url_for('dashboard.index') }}" class="text-white text-decoration-none d-flex align-items-center">
+            <i class="bi bi-ticket-perforated-fill text-indigo fs-3 me-2 text-warning"></i>
+            <div>
+                <span class="fs-5 fw-bold d-block lh-1">TicketMe</span>
+                <small class="text-muted" style="font-size: 0.7rem;">Event Ticket System</small>
+            </div>
+        </a>
+    </div>
+
+    <ul class="sidebar-nav">
+        {% if current_user.role in ['Check-In Officer', 'Security Officer'] %}
+        <li>
+            <a href="{{ url_for('verification.index') }}" class="{% if request.endpoint and request.endpoint.startswith('verification.') %}active{% endif %}">
+                <i class="bi bi-qr-code-scan text-success fs-5"></i> Gate Verification
+            </a>
+        </li>
+        {% else %}
+        <li>
+            <a href="{{ url_for('dashboard.index') }}" class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('verification.index') }}" class="{% if request.endpoint and request.endpoint.startswith('verification.') %}active{% endif %}">
+                <i class="bi bi-qr-code-scan text-success"></i> Gate Verification
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('events.index') }}" class="{% if request.endpoint and request.endpoint.startswith('events.') %}active{% endif %}">
+                <i class="bi bi-calendar-event"></i> Events
+            </a>
+        </li>
+
+        {% if current_user.is_manager %}
+        <li>
+            <a href="{{ url_for('ticket_types.index') }}" class="{% if request.endpoint and request.endpoint.startswith('ticket_types.') %}active{% endif %}">
+                <i class="bi bi-tags"></i> Ticket Types
+            </a>
+        </li>
+        {% endif %}
+
+        <li>
+            <a href="{{ url_for('customers.index') }}" class="{% if request.endpoint and request.endpoint.startswith('customers.') %}active{% endif %}">
+                <i class="bi bi-people"></i> Customers
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('bookings.index') }}" class="{% if request.endpoint and request.endpoint.startswith('bookings.') %}active{% endif %}">
+                <i class="bi bi-bookmark-check"></i> Bookings
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('payments.index') }}" class="{% if request.endpoint and request.endpoint.startswith('payments.') %}active{% endif %}">
+                <i class="bi bi-credit-card"></i> Payments
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('tickets.index') }}" class="{% if request.endpoint and request.endpoint.startswith('tickets.') %}active{% endif %}">
+                <i class="bi bi-ticket-detailed"></i> Tickets
+            </a>
+        </li>
+
+        {% if current_user.is_manager %}
+        <li>
+            <a href="{{ url_for('reports.index') }}" class="{% if request.endpoint and request.endpoint.startswith('reports.') %}active{% endif %}">
+                <i class="bi bi-bar-chart-line"></i> Reports & Analytics
+            </a>
+        </li>
+        {% endif %}
+
+        {% if current_user.is_admin %}
+        <li class="px-3 pt-3 pb-1 text-uppercase text-muted" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 1px;">Administration</li>
+        <li>
+            <a href="{{ url_for('users.index') }}" class="{% if request.endpoint and request.endpoint.startswith('users.') %}active{% endif %}">
+                <i class="bi bi-person-gear"></i> System Users
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('settings.index') }}" class="{% if request.endpoint and request.endpoint.startswith('settings.') %}active{% endif %}">
+                <i class="bi bi-gear"></i> System Settings
+            </a>
+        </li>
+        {% endif %}
+        {% endif %}
+    </ul>
+</nav>

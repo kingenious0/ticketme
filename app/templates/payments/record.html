@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Record Payment - TicketMe{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-cash-stack me-2 text-success"></i> Record Manual Payment</h5>
+
+            <div class="p-3 bg-light rounded-3 mb-4">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted small">Booking Reference:</span>
+                    <strong class="text-dark">{{ booking.booking_number }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted small">Customer:</span>
+                    <strong>{{ booking.customer.name }} ({{ booking.customer.phone_number }})</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted small">Event:</span>
+                    <strong>{{ booking.event.name }}</strong>
+                </div>
+                <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                    <span class="fw-bold">Total Payable:</span>
+                    <strong class="text-success fs-5">GH₵ {{ "%.2f"|format(booking.total_amount) }}</strong>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('payments.record', booking_id=booking.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">PAYMENT METHOD *</label>
+                    <select name="payment_method" class="form-select" required>
+                        <option value="Cash">Cash</option>
+                        <option value="MTN Mobile Money">MTN Mobile Money</option>
+                        <option value="Telecel Cash">Telecel Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Card">Card</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">TRANSACTION REFERENCE / RECEIPT #</label>
+                    <input type="text" name="transaction_reference" class="form-control" placeholder="e.g. MoMo Transaction ID: 2983749823">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted small">AMOUNT RECEIVED (GH₵) *</label>
+                    <input type="number" step="0.01" min="0" name="amount" class="form-control" value="{{ booking.total_amount }}" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted small">NOTES</label>
+                    <textarea name="notes" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('bookings.detail', booking_id=booking.id) }}" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-success fw-semibold px-4"><i class="bi bi-check-circle me-1"></i> Confirm Payment & Issue Tickets</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
